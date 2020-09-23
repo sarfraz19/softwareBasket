@@ -1,4 +1,4 @@
-package com.telusko.demo.model;
+package com.softwareBasket.demo.model;
 
 import java.util.List;
 

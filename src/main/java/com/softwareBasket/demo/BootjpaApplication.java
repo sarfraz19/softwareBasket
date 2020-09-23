@@ -1,4 +1,4 @@
-package com.telusko.demo;
+package com.softwareBasket.demo;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

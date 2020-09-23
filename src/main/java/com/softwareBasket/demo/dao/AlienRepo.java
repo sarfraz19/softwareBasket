@@ -1,8 +1,8 @@
-package com.telusko.demo.dao;
+package com.softwareBasket.demo.dao;
 
 import org.springframework.data.repository.CrudRepository;
 
-import com.telusko.demo.model.Alien;
+import com.softwareBasket.demo.model.Alien;
 
 public interface AlienRepo extends CrudRepository<Alien,Integer>
 {

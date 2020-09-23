@@ -1,4 +1,4 @@
-package com.telusko.demo.model;
+package com.softwareBasket.demo.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class SoftwareAvailable {
 	private String softwareName;
 
 	@OneToMany(targetEntity = SoftwareDetails.class, mappedBy = "softwareId", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private List<SoftwareAvailable> softwareDetails;
+	private List<SoftwareDetails> softwareDetails;
 
 	public int getSoftwareId() {
 		return softwareId;
@@ -42,11 +42,11 @@ public class SoftwareAvailable {
 	}
 
 	
-	public List<SoftwareAvailable> getSoftwareDetails() {
+	public List<SoftwareDetails> getSoftwareDetails() {
 		return softwareDetails;
 	}
 
-	public void setSoftwareDetails(List<SoftwareAvailable> softwareDetails) {
+	public void setSoftwareDetails(List<SoftwareDetails> softwareDetails) {
 		this.softwareDetails = softwareDetails;
 	}
 

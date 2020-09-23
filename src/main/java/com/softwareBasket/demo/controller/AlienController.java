@@ -1,7 +1,8 @@
-package com.telusko.demo.controller;
+package com.softwareBasket.demo.controller;
 
 import org.springframework.stereotype.Controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +14,15 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.telusko.demo.dao.AlienRepo;
-import com.telusko.demo.dao.SoftwareAvailableRepo;
-import com.telusko.demo.dao.SoftwareDetailsRepo;
-import com.telusko.demo.model.Alien;
-import com.telusko.demo.model.SelectedSoftware;
-import com.telusko.demo.model.SoftwareAvailable;
-import com.telusko.demo.model.SoftwareDetails;
+import com.softwareBasket.demo.dao.AlienRepo;
+import com.softwareBasket.demo.dao.SoftwareAvailableRepo;
+import com.softwareBasket.demo.dao.SoftwareDetailsRepo;
+import com.softwareBasket.demo.model.Alien;
+import com.softwareBasket.demo.model.FinalSoftwareDetails;
+import com.softwareBasket.demo.model.SelectedSoftware;
+import com.softwareBasket.demo.model.SoftwareAvailable;
+import com.softwareBasket.demo.model.SoftwareDetails;
+import com.softwareBasket.demo.service.SoftwareService;
 
 @RestController
 public class AlienController
@@ -34,7 +37,9 @@ public class AlienController
 	SoftwareDetailsRepo detailsRepo;
 	
 	@Autowired
-	private ObjectMapper objectMapper;
+	SoftwareService softwareService;
+	
+	List<FinalSoftwareDetails> softwareDetails = new ArrayList<FinalSoftwareDetails>();
 	
 	SoftwareAvailable soft = new SoftwareAvailable();
 	Iterable<SoftwareAvailable> soft2;
@@ -74,21 +79,21 @@ public class AlienController
 		return "saved";
 	}
 	
+//	This API is used to get the List of Software Available
 	@GetMapping("/getSoftwares")
-	public Iterable<SoftwareAvailable> getTest() throws JsonProcessingException {
-		 soft2 = avilableRepo.findAll();
-		 System.out.println(soft2.toString());
-		 String JsonOutput = objectMapper.writeValueAsString(soft2);
-		 System.out.println(JsonOutput);
-		return soft2;
+	public List<FinalSoftwareDetails> getSoftware() throws JsonProcessingException {
+		
+		softwareDetails = softwareService.getSoftwareList();
+		
+		return softwareDetails;
 	}
 	
 	@PostMapping("/chosedSoftware")
-	public String chosedSoftware(@RequestBody SelectedSoftware selected) {
+	public String chosedSoftware(@RequestBody SelectedSoftware selectedSoftware) {
 		
-		System.out.println(selected);
+		String val = softwareService.saveTicketRequest(selectedSoftware);
 		
-		return null;
+		return val;
 	}
 	
 }

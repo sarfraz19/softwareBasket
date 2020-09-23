@@ -1,4 +1,4 @@
-package com.telusko.demo.model;
+package com.softwareBasket.demo.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
