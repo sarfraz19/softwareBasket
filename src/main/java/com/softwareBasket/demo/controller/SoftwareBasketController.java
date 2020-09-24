@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +30,10 @@ import com.softwareBasket.demo.model.SoftwareAvailable;
 import com.softwareBasket.demo.model.SoftwareDetails;
 import com.softwareBasket.demo.service.SoftwareService;
 
+import io.swagger.annotations.ApiOperation;
+
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 public class SoftwareBasketController
 {
 	@Autowired
@@ -48,6 +52,7 @@ public class SoftwareBasketController
 	
 //	This API is used to get the List of Software Available
 	@GetMapping("/getSoftwares")
+	@ApiOperation(value = "/getSoftwares API to get the list of softwares")
 	public List<FinalSoftwareDetails> getSoftware() throws JsonProcessingException {
 		
 		List<FinalSoftwareDetails> softwareDetails = new ArrayList<FinalSoftwareDetails>();
@@ -57,6 +62,7 @@ public class SoftwareBasketController
 	}
 	
 	@PostMapping("/chosedSoftware")
+	@ApiOperation(value = "/chosedSoftware API which gets values after submit")
 	public String chosedSoftware(@RequestBody SelectedSoftware selectedSoftware) {
 		
 		String val = softwareService.saveTicketRequest(selectedSoftware);
@@ -65,14 +71,19 @@ public class SoftwareBasketController
 	}
 	
 	@GetMapping(value = "/employeeTicketDetails/{employeeId}")
-	public List<SelectedSoftwareAbsDb> employeeTicketDetails(@PathVariable Long employeeId) {
-		List<SelectedSoftwareAbsDb> ticketList = new ArrayList<>();
+	@ApiOperation( value = "/employeeTicketDetails which get triggered when we go to the dashboard")
+	public List<SelectedSoftwareDb> employeeTicketDetails(@PathVariable Long employeeId) {
+		List<SelectedSoftwareDb> ticketList = new ArrayList<>();
 		ticketList = softwareService.getEmployeeTicketDetails(employeeId);
 		return ticketList;
 	}
 	
-	@GetMapping(value = "/approval/{ticketNo}/{approver}")
-	public String ticketApproval(@PathVariable UUID ticketNo, @PathVariable String approver) {
-		return approver;	
+	@GetMapping(value = "/approval/{ticketNo}/{approver}/{status}")
+	@ApiOperation(value = "/approval to get approved by manager/DH")
+	public String ticketApproval(@PathVariable String ticketNo, @PathVariable String approver, @PathVariable String status) {
+		
+		String result = softwareService.approveTicker(ticketNo, approver, status);
+		
+		return result;	
 	}
 }

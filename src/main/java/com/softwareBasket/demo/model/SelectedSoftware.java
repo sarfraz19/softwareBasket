@@ -6,11 +6,19 @@ public class SelectedSoftware {
 	
 	private Long employeeId;
 	private String employeeName;
+	private String employeeEmail;
 	private String managerName;
 	private String managerEmail;
 	private String directorName;
 	private String directorEmail;
 	private List<SelectedSoftwareAbs> selectedSoftware;
+	
+	public String getEmployeeEmail() {
+		return employeeEmail;
+	}
+	public void setEmployeeEmail(String employeeEmail) {
+		this.employeeEmail = employeeEmail;
+	}
 	public Long getEmployeeId() {
 		return employeeId;
 	}
@@ -55,9 +63,9 @@ public class SelectedSoftware {
 	}
 	@Override
 	public String toString() {
-		return "SelectedSoftware [employeeId=" + employeeId + ", employeeName=" + employeeName + ", managerName="
-				+ managerName + ", managerEmail=" + managerEmail + ", directorName=" + directorName + ", directorEmail="
-				+ directorEmail + ", selectedSoftware=" + selectedSoftware + "]";
+		return "SelectedSoftware [employeeId=" + employeeId + ", employeeName=" + employeeName + ", employeeEmail="
+				+ employeeEmail + ", managerName=" + managerName + ", managerEmail=" + managerEmail + ", directorName="
+				+ directorName + ", directorEmail=" + directorEmail + ", selectedSoftware=" + selectedSoftware + "]";
 	}
 	
 

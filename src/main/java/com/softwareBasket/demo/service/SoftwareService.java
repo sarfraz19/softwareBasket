@@ -6,8 +6,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import javax.mail.internet.MimeMessage;
+
 import org.aspectj.lang.annotation.RequiredTypes;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,6 +34,9 @@ import com.softwareBasket.demo.model.SoftwareDetails;
 @Service
 public class SoftwareService {
 	
+	@Value("${spring.mail.username}")
+	private String fromEmail;
+	
 	@Autowired
 	SoftwareAvailableRepo avilableRepo;
 	
@@ -47,16 +55,26 @@ public class SoftwareService {
 	@Autowired
 	private ObjectMapper objectMapper;
 	
+	private JavaMailSender javaMailSender;
+	
+	public SoftwareService(JavaMailSender javaMailSender) {
+		super();
+		this.javaMailSender = javaMailSender;
+	}
+	
 	Iterable<SoftwareAvailable> soft2;
 	
 	public List<FinalSoftwareDetails> getSoftwareList() throws JsonProcessingException{
 		
-		FinalSoftwareDetails softwareDetails = new FinalSoftwareDetails();
-		List<FinalSoftwareDetails> softwareDetailsList = new ArrayList<>();
+		
+		List<FinalSoftwareDetails> softwareDetailsList = new ArrayList<FinalSoftwareDetails>();
 		soft2 = avilableRepo.findAll();
 		
 		for(SoftwareAvailable swAvailable : soft2) {
 			for(SoftwareDetails swDetails : swAvailable.getSoftwareDetails()) {
+				
+				FinalSoftwareDetails softwareDetails = new FinalSoftwareDetails();
+				
 				softwareDetails.setSoftwareName(swAvailable.getSoftwareName());
 				softwareDetails.setVersion(swDetails.getVersions());
 				softwareDetails.setSoftwareNameVersion(swAvailable.getSoftwareName() +"-"+ swDetails.getVersions());
@@ -74,23 +92,25 @@ public class SoftwareService {
 	public String saveTicketRequest(SelectedSoftware selectedSoftware) {
 		
 		SelectedSoftwareDb selectedSoftwareDb = new SelectedSoftwareDb();
-		SelectedSoftwareAbsDb selectedSoftwareAbsDb = new SelectedSoftwareAbsDb();
+		
 		List<SelectedSoftwareAbsDb> selectedSoftwareAbsDbList = new ArrayList<>();
 		SoftwareAvailable softAvailable = new SoftwareAvailable();
 		SoftwareDetails softDetails = new SoftwareDetails();
 		
-		UUID ticketNo = UUID.randomUUID();
+		String ticketNo = UUID.randomUUID().toString();
 		OffsetDateTime date = OffsetDateTime.now();
-		
 		selectedSoftwareDb.setDate(date);
 		selectedSoftwareDb.setTicketNo(ticketNo);
 		selectedSoftwareDb.setEmployeeId(selectedSoftware.getEmployeeId());
+		selectedSoftwareDb.setEmployeeEmail(selectedSoftware.getEmployeeEmail());
 		selectedSoftwareDb.setManagerEmail(selectedSoftware.getManagerEmail());
 		selectedSoftwareDb.setDirectorEmail(selectedSoftware.getDirectorEmail());
 		
 		int cost = 0;
-		
+
 		for (SelectedSoftwareAbs selectedSoftwareAbs : selectedSoftware.getSelectedSoftware()) {
+			
+			SelectedSoftwareAbsDb selectedSoftwareAbsDb = new SelectedSoftwareAbsDb();
 			selectedSoftwareAbsDb.setTicketNo(ticketNo);
 			selectedSoftwareAbsDb.setSoftware(selectedSoftwareAbs.getSoftwareName());
 			selectedSoftwareAbsDb.setSoftwareVersion(selectedSoftwareAbs.getSoftwareVersion());
@@ -103,21 +123,23 @@ public class SoftwareService {
 			}
 			System.out.println(cost);
 			
-			selectedSoftwareAbsDb.setManagerApproval(false);
-			selectedSoftwareAbsDb.setDhApproval(false);
-			selectedSoftwareAbsDb.setApprovedBy("Free");
+			
 			int softCost = Integer.valueOf(softDetails.getCost());
 			
-			if (softCost > 50 && softCost <100 ) {	
+			if (softCost > 19 && softCost <100 ) {	
 				selectedSoftwareAbsDb.setManagerApproval(true);
 				selectedSoftwareAbsDb.setApprovedBy("Waiting");
 			} else if (softCost > 100) {
 				selectedSoftwareAbsDb.setDhApproval(true);
 				selectedSoftwareAbsDb.setApprovedBy("Waiting");
+			} else {
+				selectedSoftwareAbsDb.setManagerApproval(false);
+				selectedSoftwareAbsDb.setDhApproval(false);
+				selectedSoftwareAbsDb.setApprovedBy("Free");
 			}
 			
-			selectedSoftwareAbsDb.setUrl("http://github.com/reponame/"+selectedSoftwareAbs.getSoftwareName()+"/"+selectedSoftwareAbs.getSoftwareVersion());
 			selectedSoftwareAbsDbList.add(selectedSoftwareAbsDb);
+
 		}
 		
 		selectedSoftwareDb.setSoftwareSelected(selectedSoftwareAbsDbList);
@@ -126,6 +148,7 @@ public class SoftwareService {
 		
 		if (cost > 10000) {
 //			mail to DH for approval
+			emailSender(selectedSoftwareDb.getDirectorEmail(), selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo());
 		} else {
 			ApprovalPojo managerApproval = new ApprovalPojo();
 			List<ApprovalPojo> managerApprovalList = new ArrayList<>();
@@ -147,23 +170,60 @@ public class SoftwareService {
 			}
 			if(managerApprovalList.size() > 0 && dhApprovalList.size() > 0) {
 //				mail to manager & dh
+				emailSender(selectedSoftwareDb.getManagerEmail(), selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo());
+				emailSender(selectedSoftwareDb.getDirectorEmail(), selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo());
+				System.out.println("manager & director email triggered");
 			} else if (managerApprovalList.size() > 0) {
 //				mail to manager alone
+				emailSender(selectedSoftwareDb.getManagerEmail(), selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo());
+				System.out.println("manager email triggered");
 			} else if (dhApprovalList.size() > 0) {
 //				mail to DH
+				emailSender(selectedSoftwareDb.getDirectorEmail(), selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo());
+				System.out.println("director email triggered");
 			}
 		}
 		
 		return "Success";
 	}
 	
-	public List<SelectedSoftwareAbsDb> getEmployeeTicketDetails(Long employeeId) {
+	private void emailSender(String approverEmail, String employeeEmail, String ticketNo) {
+		MimeMessage message = javaMailSender.createMimeMessage();
+		MimeMessageHelper msgHelper = new MimeMessageHelper(message, "UTF-8");
+		String htmlContent = "<h1>pls approve by click below link</h1><a href=\"https://www.w3schools.com\">Visit W3Schools.com!</a>";
+		try {
+			msgHelper.setTo(approverEmail);
+			msgHelper.setFrom(fromEmail);
+			msgHelper.setCc(employeeEmail);
+			msgHelper.setPriority(1);
+			msgHelper.setSubject("Software | Approval Required");
+			msgHelper.setText(htmlContent, true);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			e.getStackTrace();
+		}
+		javaMailSender.send(message);
+	}
+	
+	public List<SelectedSoftwareDb> getEmployeeTicketDetails(Long employeeId) {
 		List<SelectedSoftwareDb> ticketList = new ArrayList<>();
 		ticketList = softwareSelectedRepo.findByEmployeeId(employeeId);
-		return ticketList.get(0).getSoftwareSelected();
+		return ticketList;
 	}
 
-//	public approveTicker(UUID tickerNo, String approver) {
-//		selectedSoftwareAbsRepo
-//	}
+	public String approveTicker(String tickerNo, String approver, String status) {
+		
+		List<SelectedSoftwareAbsDb> softwareAbsDb= new ArrayList<>(); 
+		softwareAbsDb = selectedSoftwareAbsRepo.findByTicketNo(tickerNo);
+		
+		for (SelectedSoftwareAbsDb soft : softwareAbsDb) {
+			if (soft.isManagerApproval() && approver.equalsIgnoreCase("Manager")) {
+				soft.setApprovedBy(status);
+			} else if (soft.isDhApproval() && approver.equalsIgnoreCase("Director")) {
+				soft.setApprovedBy(status);
+			}
+		}
+		selectedSoftwareAbsRepo.saveAll(softwareAbsDb);
+		return "success";
+	}
 }

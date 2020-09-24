@@ -4,13 +4,13 @@ import java.util.UUID;
 
 public class ApprovalPojo {
 
-	private UUID ticketNo;
+	private String ticketNo;
 	private String software;
 	private String softwareVersion;
-	public UUID getTicketNo() {
+	public String getTicketNo() {
 		return ticketNo;
 	}
-	public void setTicketNo(UUID ticketNo) {
+	public void setTicketNo(String ticketNo) {
 		this.ticketNo = ticketNo;
 	}
 	public String getSoftware() {

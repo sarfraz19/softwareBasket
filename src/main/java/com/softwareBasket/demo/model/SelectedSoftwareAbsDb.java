@@ -1,5 +1,6 @@
 package com.softwareBasket.demo.model;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 import javax.persistence.Column;
@@ -14,40 +15,33 @@ import javax.persistence.SequenceGenerator;
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-public class SelectedSoftwareAbsDb {
+public class SelectedSoftwareAbsDb implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
 	
 	@Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "prooduct_id_seq")
-    @SequenceGenerator(name="prooduct_id_seq", sequenceName = "PRODUCT_ID_SEQ", allocationSize = 100)
-	private Integer id;
-	private UUID ticketNo;
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@Column(name = "id", updatable = false, nullable = false)
+	private Long id;
+	@Column(name = "ticket_no")
+	private String ticketNo;
 	private String software;
 	private String softwareVersion;
 	private boolean managerApproval;
 	private boolean dhApproval;
 	private String approvedBy;
-	private String url;
 	
 	
-	public Integer getId() {
+	public Long getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
-	public String getUrl() {
-		return url;
-	}
-	public void setUrl(String url) {
-		this.url = url;
-	}
-	
-	@ManyToOne
-	@JoinColumn(name = "software_selected_id")
-	public UUID getTicketNo() {
+	public String getTicketNo() {
 		return ticketNo;
 	}
-	public void setTicketNo(UUID ticketNo) {
+	public void setTicketNo(String ticketNo) {
 		this.ticketNo = ticketNo;
 	}
 	public String getSoftware() {
@@ -82,9 +76,9 @@ public class SelectedSoftwareAbsDb {
 	}
 	@Override
 	public String toString() {
-		return "SelectedSoftwareAbsDb [ticketNo=" + ticketNo + ", software=" + software + ", softwareVersion="
-				+ softwareVersion + ", managerApproval=" + managerApproval + ", dhApproval=" + dhApproval
-				+ ", approvedBy=" + approvedBy + ", url=" + url + "]";
+		return "SelectedSoftwareAbsDb [id=" + id + ", ticketNo=" + ticketNo + ", software=" + software
+				+ ", softwareVersion=" + softwareVersion + ", managerApproval=" + managerApproval + ", dhApproval="
+				+ dhApproval + ", approvedBy=" + approvedBy + "]";
 	}	
 
 }

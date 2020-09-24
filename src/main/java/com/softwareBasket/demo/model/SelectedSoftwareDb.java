@@ -1,5 +1,6 @@
 package com.softwareBasket.demo.model;
 
+import java.io.Serializable;
 import java.time.OffsetDateTime;
 import java.util.Date;
 import java.util.List;
@@ -12,32 +13,48 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 
 import org.hibernate.annotations.GenericGenerator;
 
 @Entity
-public class SelectedSoftwareDb {
+public class SelectedSoftwareDb implements Serializable {
+	
+	private static final long serialVersionUID = 1L;
+	
+//	@Id @GeneratedValue(generator="system-uuid")
+//	@GenericGenerator(name="system-uuid", strategy = "uuid")
 	
 	@Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "prooduct_id_seq")
-    @SequenceGenerator(name="prooduct_id_seq", sequenceName = "PRODUCT_ID_SEQ", allocationSize = 100)
-	private Integer id;
+	@GeneratedValue(strategy = GenerationType.SEQUENCE)
+	@Column(name = "id", updatable = false, nullable = false)
+	private Long id;
 	private Long employeeId;
-	private UUID ticketNo;
+	private String employeeEmail;
+	@Column(name = "ticket_no")
+	private String ticketNo;
 	private OffsetDateTime date;
 	private String managerEmail;
 	private String directorEmail;
 	private int totalCost;
 	
-	public Integer getId() {
+	public String getEmployeeEmail() {
+		return employeeEmail;
+	}
+	public void setEmployeeEmail(String employeeEmail) {
+		this.employeeEmail = employeeEmail;
+	}
+	public Long getId() {
 		return id;
 	}
-	public void setId(Integer id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
-	@OneToMany(targetEntity = SelectedSoftwareAbsDb.class, mappedBy = "ticketNo", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn(name = "ticket_no", referencedColumnName = "ticket_no")
 	private List<SelectedSoftwareAbsDb> softwareSelected;
 	
 	public List<SelectedSoftwareAbsDb> getSoftwareSelected() {
@@ -46,10 +63,10 @@ public class SelectedSoftwareDb {
 	public void setSoftwareSelected(List<SelectedSoftwareAbsDb> softwareSelected) {
 		this.softwareSelected = softwareSelected;
 	}
-	public UUID getTicketNo() {
+	public String getTicketNo() {
 		return ticketNo;
 	}
-	public void setTicketNo(UUID ticketNo) {
+	public void setTicketNo(String ticketNo) {
 		this.ticketNo = ticketNo;
 	}
 	public OffsetDateTime getDate() {
@@ -84,9 +101,9 @@ public class SelectedSoftwareDb {
 	}
 	@Override
 	public String toString() {
-		return "SelectedSoftwareDb [id=" + id + ", employeeId=" + employeeId + ", ticketNo=" + ticketNo + ", date="
-				+ date + ", managerEmail=" + managerEmail + ", directorEmail=" + directorEmail + ", totalCost="
-				+ totalCost + ", softwareSelected=" + softwareSelected + "]";
+		return "SelectedSoftwareDb [id=" + id + ", employeeId=" + employeeId + ", employeeEmail=" + employeeEmail
+				+ ", ticketNo=" + ticketNo + ", date=" + date + ", managerEmail=" + managerEmail + ", directorEmail="
+				+ directorEmail + ", totalCost=" + totalCost + ", softwareSelected=" + softwareSelected + "]";
 	}
 	
 	

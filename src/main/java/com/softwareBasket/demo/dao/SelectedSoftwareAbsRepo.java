@@ -9,6 +9,6 @@ import com.softwareBasket.demo.model.SelectedSoftwareAbsDb;
 
 public interface SelectedSoftwareAbsRepo extends CrudRepository<SelectedSoftwareAbsDb,Integer> {
 	
-	List<SelectedSoftwareAbsDb> findByTicketNo(UUID ticket);
+	List<SelectedSoftwareAbsDb> findByTicketNo(String ticket);
 
 }
