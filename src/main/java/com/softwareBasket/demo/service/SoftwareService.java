@@ -12,8 +12,10 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.softwareBasket.demo.dao.SelectedSoftwareAbsRepo;
 import com.softwareBasket.demo.dao.SoftwareAvailableRepo;
 import com.softwareBasket.demo.dao.SoftwareDetailsRepo;
+import com.softwareBasket.demo.dao.SoftwareSelectedRepo;
 import com.softwareBasket.demo.model.ApprovalPojo;
 import com.softwareBasket.demo.model.FinalSoftwareDetails;
 import com.softwareBasket.demo.model.SelectedSoftware;
@@ -35,6 +37,12 @@ public class SoftwareService {
 	
 	@Autowired
 	SoftwareAvailableRepo softwareAvailableRepo;
+	
+	@Autowired
+	SoftwareSelectedRepo softwareSelectedRepo;
+	
+	@Autowired
+	SelectedSoftwareAbsRepo selectedSoftwareAbsRepo;
 	
 	@Autowired
 	private ObjectMapper objectMapper;
@@ -97,13 +105,15 @@ public class SoftwareService {
 			
 			selectedSoftwareAbsDb.setManagerApproval(false);
 			selectedSoftwareAbsDb.setDhApproval(false);
-			
+			selectedSoftwareAbsDb.setApprovedBy("Free");
 			int softCost = Integer.valueOf(softDetails.getCost());
 			
 			if (softCost > 50 && softCost <100 ) {	
 				selectedSoftwareAbsDb.setManagerApproval(true);
+				selectedSoftwareAbsDb.setApprovedBy("Waiting");
 			} else if (softCost > 100) {
 				selectedSoftwareAbsDb.setDhApproval(true);
+				selectedSoftwareAbsDb.setApprovedBy("Waiting");
 			}
 			
 			selectedSoftwareAbsDb.setUrl("http://github.com/reponame/"+selectedSoftwareAbs.getSoftwareName()+"/"+selectedSoftwareAbs.getSoftwareVersion());
@@ -112,6 +122,7 @@ public class SoftwareService {
 		
 		selectedSoftwareDb.setSoftwareSelected(selectedSoftwareAbsDbList);
 		selectedSoftwareDb.setTotalCost(cost);
+		softwareSelectedRepo.save(selectedSoftwareDb);
 		
 		if (cost > 10000) {
 //			mail to DH for approval
@@ -143,8 +154,16 @@ public class SoftwareService {
 			}
 		}
 		
-		return null;
+		return "Success";
 	}
 	
+	public List<SelectedSoftwareAbsDb> getEmployeeTicketDetails(Long employeeId) {
+		List<SelectedSoftwareDb> ticketList = new ArrayList<>();
+		ticketList = softwareSelectedRepo.findByEmployeeId(employeeId);
+		return ticketList.get(0).getSoftwareSelected();
+	}
 
+//	public approveTicker(UUID tickerNo, String approver) {
+//		selectedSoftwareAbsRepo
+//	}
 }

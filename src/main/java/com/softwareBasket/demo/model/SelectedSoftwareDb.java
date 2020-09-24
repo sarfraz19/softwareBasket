@@ -6,39 +6,45 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.persistence.CascadeType;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.SequenceGenerator;
+
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 public class SelectedSoftwareDb {
 	
 	@Id
-	@GeneratedValue
-	private int id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "prooduct_id_seq")
+    @SequenceGenerator(name="prooduct_id_seq", sequenceName = "PRODUCT_ID_SEQ", allocationSize = 100)
+	private Integer id;
+	private Long employeeId;
 	private UUID ticketNo;
 	private OffsetDateTime date;
-	private int employeeId;
 	private String managerEmail;
 	private String directorEmail;
 	private int totalCost;
 	
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
 	@OneToMany(targetEntity = SelectedSoftwareAbsDb.class, mappedBy = "ticketNo", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private List<SelectedSoftwareAbsDb> softwareSelected;
 	
-	public int getId() {
-		return id;
-	}
 	public List<SelectedSoftwareAbsDb> getSoftwareSelected() {
 		return softwareSelected;
 	}
 	public void setSoftwareSelected(List<SelectedSoftwareAbsDb> softwareSelected) {
 		this.softwareSelected = softwareSelected;
-	}
-	public void setId(int id) {
-		this.id = id;
 	}
 	public UUID getTicketNo() {
 		return ticketNo;
@@ -52,10 +58,10 @@ public class SelectedSoftwareDb {
 	public void setDate(OffsetDateTime date) {
 		this.date = date;
 	}
-	public int getEmployeeId() {
+	public Long getEmployeeId() {
 		return employeeId;
 	}
-	public void setEmployeeId(int employeeId) {
+	public void setEmployeeId(Long employeeId) {
 		this.employeeId = employeeId;
 	}
 	public String getManagerEmail() {
@@ -78,8 +84,8 @@ public class SelectedSoftwareDb {
 	}
 	@Override
 	public String toString() {
-		return "SelectedSoftwareDb [id=" + id + ", ticketNo=" + ticketNo + ", date=" + date + ", employeeId="
-				+ employeeId + ", managerEmail=" + managerEmail + ", directorEmail=" + directorEmail + ", totalCost="
+		return "SelectedSoftwareDb [id=" + id + ", employeeId=" + employeeId + ", ticketNo=" + ticketNo + ", date="
+				+ date + ", managerEmail=" + managerEmail + ", directorEmail=" + directorEmail + ", totalCost="
 				+ totalCost + ", softwareSelected=" + softwareSelected + "]";
 	}
 	

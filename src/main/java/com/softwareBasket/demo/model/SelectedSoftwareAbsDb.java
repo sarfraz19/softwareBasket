@@ -2,18 +2,24 @@ package com.softwareBasket.demo.model;
 
 import java.util.UUID;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
+
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 public class SelectedSoftwareAbsDb {
 	
 	@Id
-	@GeneratedValue
-	private int id;
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "prooduct_id_seq")
+    @SequenceGenerator(name="prooduct_id_seq", sequenceName = "PRODUCT_ID_SEQ", allocationSize = 100)
+	private Integer id;
 	private UUID ticketNo;
 	private String software;
 	private String softwareVersion;
@@ -21,17 +27,19 @@ public class SelectedSoftwareAbsDb {
 	private boolean dhApproval;
 	private String approvedBy;
 	private String url;
+	
+	
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
 	public String getUrl() {
 		return url;
 	}
 	public void setUrl(String url) {
 		this.url = url;
-	}
-	public int getId() {
-		return id;
-	}
-	public void setId(int id) {
-		this.id = id;
 	}
 	
 	@ManyToOne
@@ -74,9 +82,9 @@ public class SelectedSoftwareAbsDb {
 	}
 	@Override
 	public String toString() {
-		return "SelectedSoftwareAbsDb [id=" + id + ", ticketNo=" + ticketNo + ", software=" + software
-				+ ", softwareVersion=" + softwareVersion + ", managerApproval=" + managerApproval + ", dhApproval="
-				+ dhApproval + ", approvedBy=" + approvedBy + ", url=" + url + "]";
+		return "SelectedSoftwareAbsDb [ticketNo=" + ticketNo + ", software=" + software + ", softwareVersion="
+				+ softwareVersion + ", managerApproval=" + managerApproval + ", dhApproval=" + dhApproval
+				+ ", approvedBy=" + approvedBy + ", url=" + url + "]";
 	}	
 
 }

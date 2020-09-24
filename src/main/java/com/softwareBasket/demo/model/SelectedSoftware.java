@@ -4,17 +4,17 @@ import java.util.List;
 
 public class SelectedSoftware {
 	
-	private int employeeId;
+	private Long employeeId;
 	private String employeeName;
 	private String managerName;
 	private String managerEmail;
 	private String directorName;
 	private String directorEmail;
 	private List<SelectedSoftwareAbs> selectedSoftware;
-	public int getEmployeeId() {
+	public Long getEmployeeId() {
 		return employeeId;
 	}
-	public void setEmployeeId(int employeeId) {
+	public void setEmployeeId(Long employeeId) {
 		this.employeeId = employeeId;
 	}
 	public String getEmployeeName() {
