@@ -108,6 +108,11 @@ public class SoftwareService {
 		
 		int cost = 0;
 
+		ApprovalPojo managerApproval = new ApprovalPojo();
+		List<ApprovalPojo> managerApprovalList = new ArrayList<>();
+		ApprovalPojo dhApproval = new ApprovalPojo();
+		List<ApprovalPojo> dhApprovalList = new ArrayList<>();
+		
 		for (SelectedSoftwareAbs selectedSoftwareAbs : selectedSoftware.getSelectedSoftware()) {
 			
 			SelectedSoftwareAbsDb selectedSoftwareAbsDb = new SelectedSoftwareAbsDb();
@@ -138,6 +143,19 @@ public class SoftwareService {
 				selectedSoftwareAbsDb.setApprovedBy("Free");
 			}
 			
+				if (selectedSoftwareAbsDb.isManagerApproval()) {
+					managerApproval.setTicketNo(ticketNo);
+					managerApproval.setSoftware(selectedSoftwareAbs.getSoftwareName());
+					managerApproval.setSoftwareVersion(selectedSoftwareAbs.getSoftwareVersion());
+					managerApproval.setCost(softDetails.getCost());
+					managerApprovalList.add(managerApproval);
+				} else if (selectedSoftwareAbsDb.isDhApproval()) {
+					dhApproval.setTicketNo(ticketNo);
+					dhApproval.setSoftware(selectedSoftwareAbs.getSoftwareName());
+					dhApproval.setCost(softDetails.getCost());
+					dhApprovalList.add(managerApproval);
+				}
+			
 			selectedSoftwareAbsDbList.add(selectedSoftwareAbsDb);
 
 		}
@@ -148,49 +166,38 @@ public class SoftwareService {
 		
 		if (cost > 10000) {
 //			mail to DH for approval
-			emailSender(selectedSoftwareDb.getDirectorEmail(), selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo());
-		} else {
-			ApprovalPojo managerApproval = new ApprovalPojo();
-			List<ApprovalPojo> managerApprovalList = new ArrayList<>();
-			ApprovalPojo dhApproval = new ApprovalPojo();
-			List<ApprovalPojo> dhApprovalList = new ArrayList<>();
-			
-			for (SelectedSoftwareAbsDb selectSoft : selectedSoftwareDb.getSoftwareSelected()) {
-				if (selectSoft.isManagerApproval()) {
-					managerApproval.setTicketNo(ticketNo);
-					managerApproval.setSoftware(selectSoft.getSoftware());
-					managerApproval.setSoftwareVersion(selectSoft.getSoftwareVersion());
-					managerApprovalList.add(managerApproval);
-				} else if (selectSoft.isDhApproval()) {
-					dhApproval.setTicketNo(ticketNo);
-					dhApproval.setSoftware(selectSoft.getSoftware());
-					dhApproval.setSoftwareVersion(selectSoft.getSoftwareVersion());
-					dhApprovalList.add(managerApproval);
-				}
-			}
-			if(managerApprovalList.size() > 0 && dhApprovalList.size() > 0) {
+			emailSender(selectedSoftwareDb.getDirectorEmail(), "Director", selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo(), dhApprovalList);
+		} else if(managerApprovalList.size() > 0 && dhApprovalList.size() > 0) {
 //				mail to manager & dh
-				emailSender(selectedSoftwareDb.getManagerEmail(), selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo());
-				emailSender(selectedSoftwareDb.getDirectorEmail(), selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo());
+				emailSender(selectedSoftwareDb.getManagerEmail(),"Manager" , selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo(), managerApprovalList);
+				emailSender(selectedSoftwareDb.getDirectorEmail(),"Director" , selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo(), dhApprovalList);
 				System.out.println("manager & director email triggered");
 			} else if (managerApprovalList.size() > 0) {
 //				mail to manager alone
-				emailSender(selectedSoftwareDb.getManagerEmail(), selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo());
+				emailSender(selectedSoftwareDb.getManagerEmail(), "Manager", selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo(), managerApprovalList);
 				System.out.println("manager email triggered");
 			} else if (dhApprovalList.size() > 0) {
 //				mail to DH
-				emailSender(selectedSoftwareDb.getDirectorEmail(), selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo());
+				emailSender(selectedSoftwareDb.getDirectorEmail(), "Director", selectedSoftwareDb.getEmployeeEmail(), selectedSoftwareDb.getTicketNo(), dhApprovalList);
 				System.out.println("director email triggered");
 			}
-		}
-		
 		return "Success";
 	}
 	
-	private void emailSender(String approverEmail, String employeeEmail, String ticketNo) {
+	private void emailSender(String approverEmail, String approver , String employeeEmail, String ticketNo, List<ApprovalPojo> ApprovalList) {
 		MimeMessage message = javaMailSender.createMimeMessage();
 		MimeMessageHelper msgHelper = new MimeMessageHelper(message, "UTF-8");
-		String htmlContent = "<h1>pls approve by click below link</h1><a href=\"https://www.w3schools.com\">Visit W3Schools.com!</a>";
+		String approvedUrl = "http://localhost:8080/approval/" +ticketNo+"/"+approver+"/"+"Approved";
+		String rejectedUrl = "http://localhost:8080/approval/" +ticketNo+"/"+approver+"/"+"Rejected";
+		String main = "<h2>Please Approve by click below link</h2><br>";
+		String htmlContent = "";
+		for ( ApprovalPojo pojo : ApprovalList) {
+			
+			htmlContent = ""+pojo.getSoftware()+"-"+pojo.getSoftwareVersion()+"  Cost-"+pojo.getCost()+"<a href="+approvedUrl+">Approve</a>  <a href="+rejectedUrl+">Denay</a><br>";
+		}
+
+		String htmlContent2 = "Approve All - <a href="+approvedUrl+">Approve</a>  <a href="+rejectedUrl+">Denay</a>"; 
+		htmlContent = main + htmlContent + htmlContent2;
 		try {
 			msgHelper.setTo(approverEmail);
 			msgHelper.setFrom(fromEmail);

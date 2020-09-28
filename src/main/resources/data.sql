@@ -1,4 +1,3 @@
-insert into alien values (101,'Navin');
 insert into software_available values (1,1,'software1');
 insert into software_details values (1,'0',false,1,'1');
 insert into software_details values (2,'20',true,1,'2');

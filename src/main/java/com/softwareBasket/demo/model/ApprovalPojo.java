@@ -7,6 +7,14 @@ public class ApprovalPojo {
 	private String ticketNo;
 	private String software;
 	private String softwareVersion;
+	private String cost;
+	
+	public String getCost() {
+		return cost;
+	}
+	public void setCost(String cost) {
+		this.cost = cost;
+	}
 	public String getTicketNo() {
 		return ticketNo;
 	}
